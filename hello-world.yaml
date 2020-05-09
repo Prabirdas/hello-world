@@ -1,0 +1,41 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+ name: hello-world-deployment
+spec:
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: hello-world-app
+    spec:
+     hostname: hello-world-aks-001
+     containers:
+      - name: hello-world-image
+        image: kubernatesregistry.azurecr.io/hello-world/hello-world-api:1.1
+        imagePullPolicy: Always
+        resources:
+            requests:
+                memory: 512Mi
+                cpu: 100m
+        ports:
+          - containerPort: 6789
+     imagePullSecrets:
+      - name: dmrsecret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-service
+spec:
+#  clusterIP: 10.100.100.110
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 5001
+  type: NodePort
+  selector:
+    app: hello-world-app
+  type: LoadBalancer
+---
